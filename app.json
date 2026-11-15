@@ -20,7 +20,7 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "output": "single",
+      "output": "server",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
@@ -31,6 +31,12 @@
           "backgroundColor": "#0B1426",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "NorthStar uses the microphone so you can talk to it out loud."
         }
       ]
     ],
