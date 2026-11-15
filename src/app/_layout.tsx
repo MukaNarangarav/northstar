@@ -22,16 +22,18 @@ function RootStack() {
     <Stack
       screenOptions={{
         headerStyle: { backgroundColor: Colors.background },
-        headerTintColor: Colors.text,
+        headerTintColor: Colors.copperLight,
+        headerTitleStyle: { color: Colors.text },
+        headerShadowVisible: false,
+        headerBackButtonDisplayMode: 'minimal',
         contentStyle: { backgroundColor: Colors.background },
       }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="welcome" options={{ headerShown: false }} />
-      <Stack.Screen name="questionnaire" options={{ title: 'A few questions' }} />
-      <Stack.Screen name="step/[id]" options={{ title: 'Your step' }} />
-      <Stack.Screen name="benefit/[id]" options={{ title: 'Guide' }} />
-      <Stack.Screen name="restore" options={{ title: 'Recovery code' }} />
-      <Stack.Screen name="help" options={{ title: 'Help right now', presentation: 'modal' }} />
+      <Stack.Screen name="questionnaire" options={{ title: '' }} />
+      <Stack.Screen name="step/[id]" options={{ title: '' }} />
+      <Stack.Screen name="benefit/[id]" options={{ title: '' }} />
+      <Stack.Screen name="restore" options={{ title: '' }} />
     </Stack>
   );
 }

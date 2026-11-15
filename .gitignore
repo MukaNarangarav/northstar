@@ -6,12 +6,16 @@ node_modules/
 dist/
 web-build/
 expo-env.d.ts
+*.tsbuildinfo
 
 # Native folders are generated (Continuous Native Generation)
 /ios
 /android
 
+# Secrets: API keys live here, never commit them
+.env
+.env*.local
+
 # Logs and OS files
 *.log
 .DS_Store
-.env*.local

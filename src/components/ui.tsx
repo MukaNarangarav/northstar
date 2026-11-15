@@ -1,35 +1,42 @@
-// Small reusable building blocks so every screen looks the same.
+// Shared building blocks. One visual language: large titles, grouped lists,
+// one copper accent for the main action. Nothing decorative.
 
-import { Link } from 'expo-router';
-import type { ReactNode } from 'react';
-import {
-  Linking,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  type ViewStyle,
-} from 'react-native';
+import { SymbolView, type SymbolViewProps } from 'expo-symbols';
+import { Children, Fragment, type ReactNode } from 'react';
+import { Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Colors, Space } from '@/constants/colors';
-import type { Resource } from '@/lib/types';
+import { Colors } from '@/constants/colors';
 
-export function Screen({ children }: { children: ReactNode }) {
+export function Screen({ children, edges = ['top'] }: { children: ReactNode; edges?: ('top' | 'bottom')[] }) {
   return (
-    <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
-      <ScrollView contentContainerStyle={styles.scroll}>{children}</ScrollView>
+    <SafeAreaView style={styles.screen} edges={[...edges, 'left', 'right']}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        {children}
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
-export function Title({ children }: { children: ReactNode }) {
+export function LargeTitle({
+  children,
+  subtitle,
+  exit,
+}: {
+  children: ReactNode;
+  subtitle?: string;
+  exit?: boolean; // show the Quick exit button next to the title
+}) {
   return (
-    <Text style={styles.title} accessibilityRole="header">
-      {children}
-    </Text>
+    <View style={styles.titleBlock}>
+      <View style={styles.titleRow}>
+        <Text style={[styles.largeTitle, { flex: 1 }]} accessibilityRole="header">
+          {children}
+        </Text>
+        {exit ? <QuickExitButton /> : null}
+      </View>
+      {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+    </View>
   );
 }
 
@@ -37,93 +44,61 @@ export function Body({ children, muted }: { children: ReactNode; muted?: boolean
   return <Text style={[styles.body, muted && { color: Colors.textMuted }]}>{children}</Text>;
 }
 
-export function Label({ children }: { children: ReactNode }) {
-  return <Text style={styles.small}>{children}</Text>;
-}
-
-export function Card({ children, style }: { children: ReactNode; style?: ViewStyle }) {
-  return <View style={[styles.card, style]}>{children}</View>;
-}
-
-export function Button({
-  label,
-  onPress,
-  variant = 'primary',
-  accessibilityLabel,
-  accessibilityHint,
-}: {
-  label: string;
-  onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'danger';
-  accessibilityLabel?: string;
-  accessibilityHint?: string;
-}) {
+// A titled group of rows with hairline dividers.
+export function Section({ title, footer, children }: { title?: string; footer?: string; children: ReactNode }) {
+  const rows = Children.toArray(children).filter(Boolean);
   return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel ?? label}
-      accessibilityHint={accessibilityHint}
-      style={({ pressed }) => [
-        styles.button,
-        variant === 'primary' && styles.buttonPrimary,
-        variant === 'secondary' && styles.buttonSecondary,
-        variant === 'danger' && styles.buttonDanger,
-        pressed && { opacity: 0.7 },
-      ]}>
-      <Text style={[styles.buttonText, variant === 'primary' && { color: Colors.background }]}>
-        {label}
-      </Text>
-    </Pressable>
-  );
-}
-
-// A tap-to-check list. Checked items are saved by the caller (see toggleCheck in profile.tsx).
-export function Checklist({
-  items,
-  checked,
-  onToggle,
-  numbered,
-}: {
-  items: string[];
-  checked: string[];
-  onToggle?: (item: string) => void;
-  numbered?: boolean;
-}) {
-  return (
-    <View style={{ gap: Space.sm }}>
-      {items.map((item, i) => {
-        const isChecked = checked.includes(item);
-        const text = numbered ? `${i + 1}. ${item}` : item;
-        if (!onToggle) return <Body key={item}>{text}</Body>;
-        return (
-          <Pressable
-            key={item}
-            onPress={() => onToggle(item)}
-            accessibilityRole="checkbox"
-            accessibilityState={{ checked: isChecked }}
-            accessibilityLabel={item}
-            style={styles.check}>
-            <Text style={styles.box}>{isChecked ? '☑' : '☐'}</Text>
-            <Text style={[styles.body, styles.checkText, isChecked && styles.checkedText]}>{text}</Text>
-          </Pressable>
-        );
-      })}
+    <View style={styles.section}>
+      {title ? <Text style={styles.sectionTitle}>{title}</Text> : null}
+      <View style={styles.group}>
+        {rows.map((row, i) => (
+          <Fragment key={i}>
+            {i > 0 && <View style={styles.divider} />}
+            {row}
+          </Fragment>
+        ))}
+      </View>
+      {footer ? <Text style={styles.sectionFooter}>{footer}</Text> : null}
     </View>
   );
 }
 
-// Big red button that opens the crisis numbers.
-export function HelpNowButton() {
+export function Row({
+  title,
+  subtitle,
+  value,
+  icon,
+  tint,
+  onPress,
+  chevron = !!onPress,
+  disabled,
+}: {
+  title: string;
+  subtitle?: string | null;
+  value?: string;
+  icon?: SymbolViewProps['name'];
+  tint?: string;
+  onPress?: () => void;
+  chevron?: boolean;
+  disabled?: boolean;
+}) {
   return (
-    <Link href="/help" asChild>
-      <Pressable
-        style={styles.helpNow}
-        accessibilityRole="button"
-        accessibilityLabel="Need help right now? Open crisis and shelter phone numbers">
-        <Text style={styles.helpNowText}>🆘 Need help right now?</Text>
-      </Pressable>
-    </Link>
+    <Pressable
+      onPress={onPress}
+      disabled={disabled || !onPress}
+      accessibilityRole={onPress ? 'button' : 'text'}
+      accessibilityLabel={[title, subtitle, value].filter(Boolean).join(', ')}
+      style={({ pressed }) => [styles.row, pressed && { backgroundColor: Colors.cardLight }, disabled && { opacity: 0.4 }]}>
+      {icon ? (
+        <SymbolView name={icon} size={20} tintColor={tint ?? Colors.copperLight} style={styles.rowIcon} fallback={null} />
+      ) : null}
+      <View style={{ flex: 1, gap: 2 }}>
+        <Text style={[styles.rowTitle, tint ? { color: tint } : null]}>{title}</Text>
+        {subtitle ? <Text style={styles.rowSubtitle}>{subtitle}</Text> : null}
+      </View>
+      {value ? <Text style={styles.rowValue}>{value}</Text> : null}
+      {chevron ? <Text style={styles.chevron}>›</Text> : null}
+    </Pressable>
   );
 }
 
@@ -144,125 +119,94 @@ export function QuickExitButton() {
   return (
     <Pressable
       onPress={quickExit}
-      style={styles.quickExit}
+      hitSlop={10}
+      style={({ pressed }) => [styles.exit, pressed && { opacity: 0.6 }]}
       accessibilityRole="button"
       accessibilityLabel="Quick exit"
       accessibilityHint="Leaves NorthStar and opens a weather page">
-      <Text style={styles.quickExitText}>✕ Exit</Text>
+      <Text style={styles.exitText}>Exit</Text>
     </Pressable>
   );
 }
 
-// Shown at the top of every main tab: crisis help + quick exit, always within reach.
-export function SafetyBar() {
-  return (
-    <View style={styles.safetyBar}>
-      <View style={{ flex: 1 }}>
-        <HelpNowButton />
-      </View>
-      <QuickExitButton />
-    </View>
-  );
-}
-
-// Opens the phone's maps app (or Google Maps on the web) with directions to an address.
+// Opens the phone's maps app with walking directions to an address.
 export function openDirections(address: string) {
   const q = encodeURIComponent(address);
   const url = Platform.select({
-    ios: `https://maps.apple.com/?daddr=${q}`,
-    android: `geo:0,0?q=${q}`,
-    default: `https://www.google.com/maps/dir/?api=1&destination=${q}`,
+    ios: `https://maps.apple.com/?daddr=${q}&dirflg=w`,
+    default: `https://www.google.com/maps/dir/?api=1&destination=${q}&travelmode=walking`,
   });
   Linking.openURL(url).catch(() => {});
 }
 
-export function ResourceCard({ resource }: { resource: Resource }) {
+export function Button({
+  label,
+  onPress,
+  variant = 'primary',
+  accessibilityLabel,
+  accessibilityHint,
+}: {
+  label: string;
+  onPress: () => void;
+  variant?: 'primary' | 'secondary' | 'plain' | 'danger';
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
+}) {
   return (
-    <Card>
-      <Label>{resource.category.toUpperCase()}</Label>
-      <Text style={styles.cardTitle}>{resource.name}</Text>
-      <Body muted>{resource.description}</Body>
-
-      {(resource.address || resource.hours || resource.serves) && (
-        <View style={{ gap: 2 }}>
-          {resource.address && <Body>📍 {resource.address}</Body>}
-          {resource.hours && <Body>🕒 {resource.hours}</Body>}
-          {resource.serves && <Body>👥 {resource.serves}</Body>}
-        </View>
-      )}
-
-      <View style={styles.row}>
-        {resource.phone && (
-          <Button
-            label={`📞 Call ${resource.phone}`}
-            variant="secondary"
-            accessibilityLabel={`Call ${resource.name} at ${resource.phone}`}
-            onPress={() => Linking.openURL(`tel:${resource.phone}`)}
-          />
-        )}
-        {resource.address && (
-          <Button
-            label="🧭 Directions"
-            variant="secondary"
-            accessibilityLabel={`Directions to ${resource.name}`}
-            onPress={() => openDirections(resource.address!)}
-          />
-        )}
-        {resource.url && (
-          <Button
-            label="🌐 Website"
-            variant="secondary"
-            accessibilityLabel={`Open the ${resource.name} website`}
-            onPress={() => Linking.openURL(resource.url!)}
-          />
-        )}
-      </View>
-    </Card>
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? label}
+      accessibilityHint={accessibilityHint}
+      style={({ pressed }) => [
+        styles.button,
+        variant === 'primary' && styles.buttonPrimary,
+        variant === 'secondary' && styles.buttonSecondary,
+        variant === 'danger' && styles.buttonDanger,
+        pressed && { opacity: 0.7 },
+      ]}>
+      <Text
+        style={[
+          styles.buttonText,
+          variant === 'primary' && { color: Colors.onCopper },
+          variant === 'plain' && { color: Colors.copperLight, fontWeight: '500' },
+          variant === 'danger' && { color: '#fff' },
+        ]}>
+        {label}
+      </Text>
+    </Pressable>
   );
 }
 
 export const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: Colors.background },
-  scroll: { padding: Space.md, gap: Space.md, paddingBottom: Space.xl },
-  title: { color: Colors.text, fontSize: 28, fontWeight: '700' },
-  body: { color: Colors.text, fontSize: 16, lineHeight: 24 },
-  small: { color: Colors.star, fontSize: 12, fontWeight: '700', letterSpacing: 1 },
-  card: { backgroundColor: Colors.card, borderRadius: 16, padding: Space.md, gap: Space.sm },
-  cardTitle: { color: Colors.text, fontSize: 18, fontWeight: '700' },
-  row: { flexDirection: 'row', flexWrap: 'wrap', gap: Space.sm, marginTop: Space.xs },
-  button: {
-    minHeight: 48,
-    justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 18,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  buttonPrimary: { backgroundColor: Colors.star },
-  buttonSecondary: { backgroundColor: Colors.cardLight },
-  buttonDanger: { backgroundColor: Colors.danger },
-  buttonText: { color: Colors.text, fontSize: 16, fontWeight: '700', textAlign: 'center' },
-  check: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, minHeight: 44 },
-  box: { color: Colors.star, fontSize: 22, lineHeight: 24 },
-  checkText: { flex: 1 },
-  checkedText: { color: Colors.textMuted, textDecorationLine: 'line-through' },
-  safetyBar: { flexDirection: 'row', gap: Space.sm, alignItems: 'stretch' },
-  helpNow: {
-    backgroundColor: Colors.danger,
-    borderRadius: 12,
-    padding: 12,
-    minHeight: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  helpNowText: { color: '#fff', fontWeight: '700', fontSize: 16, textAlign: 'center' },
-  quickExit: {
-    backgroundColor: Colors.cardLight,
-    borderRadius: 12,
+  scroll: { paddingHorizontal: 20, paddingBottom: 48, gap: 28 },
+  titleBlock: { gap: 6, marginTop: 12 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  exit: {
+    paddingVertical: 7,
     paddingHorizontal: 14,
-    minHeight: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.08)',
   },
-  quickExitText: { color: Colors.text, fontWeight: '700', fontSize: 16 },
+  exitText: { color: Colors.text, fontSize: 14, fontWeight: '600' },
+  largeTitle: { color: Colors.text, fontSize: 34, fontWeight: '700', letterSpacing: -0.8 },
+  subtitle: { color: Colors.textMuted, fontSize: 17, lineHeight: 23 },
+  body: { color: Colors.text, fontSize: 17, lineHeight: 25 },
+  section: { gap: 8 },
+  sectionTitle: { color: Colors.textMuted, fontSize: 13, fontWeight: '500', marginLeft: 16 },
+  sectionFooter: { color: Colors.textMuted, fontSize: 13, lineHeight: 18, marginHorizontal: 16 },
+  group: { backgroundColor: Colors.card, borderRadius: 14, overflow: 'hidden' },
+  divider: { height: StyleSheet.hairlineWidth, backgroundColor: 'rgba(255,255,255,0.08)', marginLeft: 16 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, paddingHorizontal: 16, minHeight: 52 },
+  rowIcon: { width: 24, height: 24 },
+  rowTitle: { color: Colors.text, fontSize: 17 },
+  rowSubtitle: { color: Colors.textMuted, fontSize: 14, lineHeight: 19 },
+  rowValue: { color: Colors.textMuted, fontSize: 17 },
+  chevron: { color: '#5E5650', fontSize: 24, fontWeight: '300', marginTop: -2 },
+  button: { paddingVertical: 16, borderRadius: 14, alignItems: 'center' },
+  buttonPrimary: { backgroundColor: Colors.copperLight },
+  buttonSecondary: { backgroundColor: Colors.card },
+  buttonDanger: { backgroundColor: Colors.danger },
+  buttonText: { color: Colors.text, fontSize: 17, fontWeight: '600' },
 });

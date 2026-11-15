@@ -1,9 +1,11 @@
-import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
-import { Text } from 'react-native';
+import { Linking, StyleSheet, Text, View } from 'react-native';
 
-import { Body, Button, Card, Checklist, Label, ResourceCard, Screen, Title } from '@/components/ui';
-import { getResource, getStep, getStory } from '@/lib/data';
+import { Body, Button, LargeTitle, Row, Screen, Section, openDirections } from '@/components/ui';
+import { Colors } from '@/constants/colors';
+import { getResource, getStep } from '@/lib/data';
 import { useProfile } from '@/lib/profile';
 import { buildRoadmap } from '@/lib/roadmap';
 
@@ -15,104 +17,116 @@ export default function StepScreen() {
   const step = getStep(id);
   if (!step || !answers) {
     return (
-      <Screen>
-        <Stack.Screen options={{ title: 'Step not found' }} />
+      <Screen edges={[]}>
         <Body>We couldn't find that step.</Body>
-        <Button label="Go to my roadmap" onPress={() => router.replace('/roadmap')} />
+        <Button label="Go to my plan" onPress={() => router.replace('/plan')} />
       </Screen>
     );
   }
 
   const items = buildRoadmap(answers, completed);
   const status = items.find((i) => i.step.id === step.id)!.status;
-  const story = getStory(step.storyId);
+  const locked = status === 'locked';
   const listId = `step:${step.id}`;
-  const missing = step.requires.filter(
-    (rid) => items.find((i) => i.step.id === rid)?.status !== 'done',
-  );
+  const checked = checks[listId] ?? [];
+  const missing = step.requires
+    .filter((rid) => items.find((i) => i.step.id === rid)?.status !== 'done')
+    .map((rid) => getStep(rid)?.title)
+    .filter(Boolean);
+  const places = step.resourceIds.map(getResource).filter((r) => !!r);
 
-  // Celebration screen after marking a step complete.
   if (celebrate) {
     const next = items.find((i) => i.status === 'next');
     return (
-      <Screen>
-        <Stack.Screen options={{ title: 'Step complete' }} />
-        <Text style={{ fontSize: 72, textAlign: 'center', marginTop: 60 }}>🎉</Text>
-        <Title>{step.celebration}</Title>
-        {next ? (
-          <Button
-            label={`Next: ${next.step.emoji} ${next.step.title} →`}
-            onPress={() => router.replace(`/step/${next.step.id}`)}
-          />
-        ) : (
-          <Body>🏠 That was the last step. You made it to Home Base!</Body>
-        )}
-        <Button label="Back to my roadmap" variant="secondary" onPress={() => router.back()} />
-      </Screen>
+      <View style={styles.celebrate}>
+        <SymbolView
+          name={{ ios: 'checkmark.circle.fill', android: 'check_circle' }}
+          size={72}
+          tintColor={Colors.done}
+          fallback={null}
+        />
+        <Text style={styles.celebrateText}>{step.celebration}</Text>
+        <View style={{ alignSelf: 'stretch', gap: 10 }}>
+          {next ? (
+            <Button label={`Next: ${next.step.title}`} onPress={() => router.replace(`/step/${next.step.id}`)} />
+          ) : (
+            <Body muted>That was the last step. You made it to Home Base.</Body>
+          )}
+          <Button label="Back to my plan" variant="secondary" onPress={() => router.back()} />
+        </View>
+      </View>
     );
   }
 
   return (
-    <Screen>
-      <Stack.Screen options={{ title: step.title }} />
-      <Title>
-        {step.emoji} {step.title}
-      </Title>
-      <Body muted>{step.plainTitle}</Body>
+    <Screen edges={[]}>
+      <LargeTitle subtitle={step.plainTitle}>{step.title}</LargeTitle>
 
-      {status === 'locked' && (
-        <Card>
-          <Label>🔒 COMING UP</Label>
-          <Body>
-            Finish{' '}
-            {missing
-              .map((rid) => getStep(rid)?.title)
-              .filter(Boolean)
-              .join(' and ')}{' '}
-            first. Here's a preview of what this step involves.
-          </Body>
-        </Card>
+      {locked && missing.length > 0 && (
+        <View style={styles.notice}>
+          <Text style={styles.noticeTitle}>Coming up</Text>
+          <Body muted>Finish {missing.join(' and ')} first. Here's a preview of this step.</Body>
+        </View>
       )}
 
-      <Card>
-        <Label>WHY THIS MATTERS</Label>
-        <Body>{step.why}</Body>
-      </Card>
+      <Body muted>{step.why}</Body>
 
-      <Card>
-        <Label>{status === 'locked' ? 'WHAT YOU WILL DO' : 'WHAT TO DO (TAP TO CHECK OFF)'}</Label>
-        <Checklist
-          items={step.tasks}
-          checked={checks[listId] ?? []}
-          onToggle={status === 'locked' ? undefined : (t) => toggleCheck(listId, t)}
-          numbered
-        />
-      </Card>
+      <Section
+        title={locked ? 'What you will do' : 'What to do'}
+        footer={locked ? undefined : 'Tap each one when it’s done.'}>
+        {step.tasks.map((t, i) => {
+          const on = checked.includes(t);
+          return (
+            <Row
+              key={t}
+              title={`${i + 1}. ${t}`}
+              icon={
+                locked
+                  ? undefined
+                  : on
+                    ? { ios: 'checkmark.circle.fill', android: 'check_circle' }
+                    : { ios: 'circle', android: 'radio_button_unchecked' }
+              }
+              tint={on ? Colors.done : undefined}
+              onPress={locked ? undefined : () => toggleCheck(listId, t)}
+              chevron={false}
+            />
+          );
+        })}
+      </Section>
 
-      <Label>PLACES THAT CAN HELP</Label>
-      {step.resourceIds.map((rid) => {
-        const r = getResource(rid);
-        return r ? <ResourceCard key={rid} resource={r} /> : null;
-      })}
-
-      {story && (
-        <Card>
-          <Label>{story.isSample ? 'EXAMPLE STORY' : 'SOMEONE WHO MADE IT'}</Label>
-          <Body>"{story.text}"</Body>
-          <Body muted>— {story.name}</Body>
-        </Card>
+      {places.length > 0 && (
+        <Section title="Who can help">
+          {places.map((r) => (
+            <Row
+              key={r!.id}
+              title={r!.name}
+              subtitle={[r!.description, r!.address, r!.hours, r!.serves].filter(Boolean).join(' · ')}
+              value={r!.phone ? 'Call' : r!.address ? 'Directions' : r!.url ? 'Website' : undefined}
+              onPress={
+                r!.phone
+                  ? () => Linking.openURL(`tel:${r!.phone}`)
+                  : r!.address
+                    ? () => openDirections(r!.address!)
+                    : r!.url
+                      ? () => Linking.openURL(r!.url!)
+                      : undefined
+              }
+              chevron={false}
+            />
+          ))}
+        </Section>
       )}
 
       {status === 'done' ? (
-        <>
-          <Body muted>✅ You've finished this step.</Body>
-          {completed.includes(step.id) && (
-            <Button label="Undo" variant="secondary" onPress={() => undoStep(step.id)} />
-          )}
-        </>
-      ) : status !== 'locked' ? (
+        completed.includes(step.id) ? (
+          <Button label="Mark as not done" variant="plain" onPress={() => undoStep(step.id)} />
+        ) : (
+          <Body muted>You already have this one.</Body>
+        )
+      ) : !locked ? (
         <Button
-          label="I did it! Mark complete"
+          label="I did this"
           onPress={() => {
             completeStep(step.id);
             setCelebrate(true);
@@ -122,3 +136,17 @@ export default function StepScreen() {
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  celebrate: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 24,
+    padding: 24,
+  },
+  celebrateText: { color: Colors.text, fontSize: 26, fontWeight: '600', textAlign: 'center', letterSpacing: -0.4 },
+  notice: { backgroundColor: Colors.card, borderRadius: 14, padding: 16, gap: 4 },
+  noticeTitle: { color: Colors.copperLight, fontSize: 13, fontWeight: '600' },
+});

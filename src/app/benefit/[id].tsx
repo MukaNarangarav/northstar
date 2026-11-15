@@ -1,7 +1,8 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { Linking } from 'react-native';
 
-import { Body, Button, Card, Checklist, Label, Screen, Title } from '@/components/ui';
+import { Body, Button, LargeTitle, Row, Screen, Section } from '@/components/ui';
+import { Colors } from '@/constants/colors';
 import { getBenefit } from '@/lib/data';
 import { useProfile } from '@/lib/profile';
 
@@ -10,47 +11,49 @@ export default function BenefitScreen() {
   const benefit = getBenefit(id);
   const { checks, toggleCheck } = useProfile();
 
-  if (!benefit) return <Screen><Body>Not found.</Body></Screen>;
+  if (!benefit)
+    return (
+      <Screen edges={[]}>
+        <Body>Not found.</Body>
+      </Screen>
+    );
 
+  // Checked items are saved, so the list is still ticked off next time.
   const docsId = `benefit-docs:${benefit.id}`;
   const stepsId = `benefit-steps:${benefit.id}`;
 
+  const checkRow = (listId: string, item: string, label: string) => {
+    const on = (checks[listId] ?? []).includes(item);
+    return (
+      <Row
+        key={item}
+        title={label}
+        icon={on ? { ios: 'checkmark.circle.fill', android: 'check_circle' } : { ios: 'circle', android: 'radio_button_unchecked' }}
+        tint={on ? Colors.done : undefined}
+        onPress={() => toggleCheck(listId, item)}
+        chevron={false}
+      />
+    );
+  };
+
   return (
-    <Screen>
-      <Stack.Screen options={{ title: benefit.name }} />
-      <Title>
-        {benefit.emoji} {benefit.name}
-      </Title>
-      <Body muted>{benefit.summary}</Body>
+    <Screen edges={[]}>
+      <LargeTitle subtitle={benefit.summary}>{benefit.name}</LargeTitle>
 
-      <Card>
-        <Label>YOU MAY BE ELIGIBLE IF</Label>
-        <Body>{benefit.mightQualify}</Body>
-      </Card>
+      <Section title="You may qualify if">
+        <Row title={benefit.mightQualify} />
+      </Section>
 
-      <Card>
-        <Label>WHAT TO BRING (TAP TO CHECK OFF)</Label>
-        <Checklist
-          items={benefit.documents}
-          checked={checks[docsId] ?? []}
-          onToggle={(doc) => toggleCheck(docsId, doc)}
-        />
-      </Card>
+      <Section title="What to bring" footer="Tap each one when you have it.">
+        {benefit.documents.map((doc) => checkRow(docsId, doc, doc))}
+      </Section>
 
-      <Card>
-        <Label>HOW TO APPLY (TAP TO CHECK OFF)</Label>
-        <Checklist
-          items={benefit.steps}
-          checked={checks[stepsId] ?? []}
-          onToggle={(item) => toggleCheck(stepsId, item)}
-          numbered
-        />
-      </Card>
+      <Section title="How to apply">
+        {benefit.steps.map((s, i) => checkRow(stepsId, s, `${i + 1}. ${s}`))}
+      </Section>
 
-      <Button label="Open the official site" onPress={() => Linking.openURL(benefit.url)} />
-      <Body muted>
-        NorthStar is a guide, not a government office. The official site makes the final decision.
-      </Body>
+      <Button label="Apply on the official site" onPress={() => Linking.openURL(benefit.url)} />
+      <Body muted>NorthStar is a guide, not a government office. The official site makes the final decision.</Body>
     </Screen>
   );
 }
