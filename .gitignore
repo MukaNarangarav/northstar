@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native folders are generated (Continuous Native Generation)
+/ios
+/android
+
+# Logs and OS files
+*.log
+.DS_Store
+.env*.local

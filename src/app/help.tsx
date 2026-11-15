@@ -1,6 +1,6 @@
 import { Linking, Text } from 'react-native';
 
-import { Body, Button, Card, Screen, styles as ui } from '@/components/ui';
+import { Body, Button, Card, QuickExitButton, Screen, styles as ui } from '@/components/ui';
 
 // Crisis and emergency numbers. Keep this list short and easy to tap.
 const lines = [
@@ -16,11 +16,15 @@ export default function HelpScreen() {
   return (
     <Screen>
       <Body muted>You're not alone. Tap a number to call.</Body>
+      <QuickExitButton />
       {lines.map((l) => (
         <Card key={l.phone}>
           <Text style={ui.cardTitle}>{l.label}</Text>
           <Body muted>{l.detail}</Body>
-          <Button label={`📞 Call ${l.phone}`} onPress={() => Linking.openURL(`tel:${l.phone}`)} />
+          <Button
+            label={`📞 Call ${l.phone}`}
+            accessibilityLabel={`Call ${l.label}, ${l.phone}`}
+            onPress={() => Linking.openURL(`tel:${l.phone}`)} />
         </Card>
       ))}
     </Screen>

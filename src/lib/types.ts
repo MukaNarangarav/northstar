@@ -32,6 +32,10 @@ export type Resource = {
   description: string;
   phone: string | null;
   url: string | null;
+  // Optional details. Only fill these in once you've confirmed them.
+  address?: string; // street address, used for the Directions button
+  hours?: string; // e.g. "Mon-Fri 9am-5pm" or "24/7"
+  serves?: string; // who can go, e.g. "Adults 18+", "Families with kids"
 };
 
 export type Story = {

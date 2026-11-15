@@ -38,8 +38,12 @@ export default function WelcomeScreen() {
   return (
     <SafeAreaView style={styles.screen}>
       <View style={styles.center}>
-        <Text style={styles.emoji}>{slide.emoji}</Text>
-        <Text style={styles.title}>{slide.title}</Text>
+        <Text style={styles.emoji} accessibilityElementsHidden importantForAccessibility="no">
+          {slide.emoji}
+        </Text>
+        <Text style={styles.title} accessibilityRole="header">
+          {slide.title}
+        </Text>
         <Text style={styles.text}>{slide.text}</Text>
       </View>
 
@@ -52,6 +56,12 @@ export default function WelcomeScreen() {
       <Button
         label={isLast ? "Let's get started" : 'Next'}
         onPress={() => (isLast ? router.replace('/questionnaire') : setIndex(index + 1))}
+      />
+      <Button
+        label="I have a recovery code"
+        variant="secondary"
+        accessibilityHint="Get back a plan you made on another phone"
+        onPress={() => router.push('/restore')}
       />
     </SafeAreaView>
   );

@@ -81,10 +81,10 @@
   },
   {
     "id": "legal-aid",
-    "name": "Legal Aid Society of Columbus",
+    "name": "Legal Aid of Southeast and Central Ohio (LASCO)",
     "category": "Legal",
-    "description": "Free legal help with housing, evictions, benefits and more.",
-    "phone": null,
-    "url": "https://www.columbuslegalaid.org"
+    "description": "Free legal help with evictions, fines, benefits and more. Formerly the Legal Aid Society of Columbus.",
+    "phone": "614-221-7201",
+    "url": "https://www.lasco.org"
   }
 ]

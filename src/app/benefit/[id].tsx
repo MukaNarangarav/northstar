@@ -1,50 +1,50 @@
-import { useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
-import { Linking, Pressable, StyleSheet, Text } from 'react-native';
+import { Stack, useLocalSearchParams } from 'expo-router';
+import { Linking } from 'react-native';
 
-import { Body, Button, Card, Screen, Title, styles as ui } from '@/components/ui';
-import { Colors } from '@/constants/colors';
+import { Body, Button, Card, Checklist, Label, Screen, Title } from '@/components/ui';
 import { getBenefit } from '@/lib/data';
+import { useProfile } from '@/lib/profile';
 
 export default function BenefitScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const benefit = getBenefit(id);
-  const [checked, setChecked] = useState<string[]>([]);
+  const { checks, toggleCheck } = useProfile();
 
   if (!benefit) return <Screen><Body>Not found.</Body></Screen>;
 
-  const toggle = (doc: string) =>
-    setChecked(checked.includes(doc) ? checked.filter((d) => d !== doc) : [...checked, doc]);
+  const docsId = `benefit-docs:${benefit.id}`;
+  const stepsId = `benefit-steps:${benefit.id}`;
 
   return (
     <Screen>
+      <Stack.Screen options={{ title: benefit.name }} />
       <Title>
         {benefit.emoji} {benefit.name}
       </Title>
       <Body muted>{benefit.summary}</Body>
 
       <Card>
-        <Text style={ui.small}>YOU MAY BE ELIGIBLE IF</Text>
+        <Label>YOU MAY BE ELIGIBLE IF</Label>
         <Body>{benefit.mightQualify}</Body>
       </Card>
 
       <Card>
-        <Text style={ui.small}>WHAT TO BRING (TAP TO CHECK OFF)</Text>
-        {benefit.documents.map((doc) => (
-          <Pressable key={doc} onPress={() => toggle(doc)} style={styles.check}>
-            <Text style={styles.box}>{checked.includes(doc) ? '☑' : '☐'}</Text>
-            <Body>{doc}</Body>
-          </Pressable>
-        ))}
+        <Label>WHAT TO BRING (TAP TO CHECK OFF)</Label>
+        <Checklist
+          items={benefit.documents}
+          checked={checks[docsId] ?? []}
+          onToggle={(doc) => toggleCheck(docsId, doc)}
+        />
       </Card>
 
       <Card>
-        <Text style={ui.small}>HOW TO APPLY</Text>
-        {benefit.steps.map((s, i) => (
-          <Body key={i}>
-            {i + 1}. {s}
-          </Body>
-        ))}
+        <Label>HOW TO APPLY (TAP TO CHECK OFF)</Label>
+        <Checklist
+          items={benefit.steps}
+          checked={checks[stepsId] ?? []}
+          onToggle={(item) => toggleCheck(stepsId, item)}
+          numbered
+        />
       </Card>
 
       <Button label="Open the official site" onPress={() => Linking.openURL(benefit.url)} />
@@ -54,8 +54,3 @@ export default function BenefitScreen() {
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  check: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  box: { color: Colors.star, fontSize: 22 },
-});

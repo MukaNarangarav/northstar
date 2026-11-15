@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Body, Screen, Title } from '@/components/ui';
+import { Body, SafetyBar, Screen, Title } from '@/components/ui';
 import { Colors, Space } from '@/constants/colors';
 import { useProfile } from '@/lib/profile';
 import { buildRoadmap } from '@/lib/roadmap';
@@ -14,6 +14,13 @@ const label: Record<StepStatus, string> = {
   locked: '🔒 Locked',
 };
 
+const spoken: Record<StepStatus, string> = {
+  done: 'Done',
+  next: 'Your next step',
+  unlocked: 'Ready to start',
+  locked: 'Locked. Tap to preview.',
+};
+
 export default function RoadmapScreen() {
   const { answers, completed } = useProfile();
   const items = buildRoadmap(answers!, completed);
@@ -21,7 +28,9 @@ export default function RoadmapScreen() {
   return (
     <Screen>
       <Title>Your Roadmap</Title>
-      <Body muted>Each step unlocks the next one.</Body>
+      <Body muted>Each step unlocks the next one. Tap any step to see what's involved.</Body>
+
+      <SafetyBar />
 
       {items.map(({ step, status }, i) => (
         <View key={step.id} style={styles.row}>
@@ -31,9 +40,11 @@ export default function RoadmapScreen() {
             {i < items.length - 1 && <View style={styles.line} />}
           </View>
 
+          {/* Locked steps can still be opened to preview them; they just can't be completed yet. */}
           <Pressable
-            disabled={status === 'locked'}
             onPress={() => router.push(`/step/${step.id}`)}
+            accessibilityRole="button"
+            accessibilityLabel={`${step.title}, ${step.plainTitle}. ${spoken[status]}`}
             style={[styles.card, status === 'next' && styles.cardNext, status === 'locked' && { opacity: 0.5 }]}>
             <Text style={styles.status}>{label[status]}</Text>
             <Text style={styles.title}>

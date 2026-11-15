@@ -30,6 +30,7 @@ function RootStack() {
       <Stack.Screen name="questionnaire" options={{ title: 'A few questions' }} />
       <Stack.Screen name="step/[id]" options={{ title: 'Your step' }} />
       <Stack.Screen name="benefit/[id]" options={{ title: 'Guide' }} />
+      <Stack.Screen name="restore" options={{ title: 'Recovery code' }} />
       <Stack.Screen name="help" options={{ title: 'Help right now', presentation: 'modal' }} />
     </Stack>
   );

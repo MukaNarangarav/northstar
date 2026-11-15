@@ -12,7 +12,11 @@
     ],
     "requires": [],
     "skipIf": "hasShelter",
-    "resourceIds": ["csb-hotline", "mid-ohio-food", "call-211"],
+    "resourceIds": [
+      "csb-hotline",
+      "mid-ohio-food",
+      "call-211"
+    ],
     "storyId": "story-safety",
     "celebration": "You're safe tonight. That's the foundation for everything else."
   },
@@ -27,9 +31,14 @@
       "If not, call 211 and ask where you can get a mailing address",
       "Write the full address down and keep it with you"
     ],
-    "requires": ["safety"],
+    "requires": [
+      "safety"
+    ],
     "skipIf": "hasAddress",
-    "resourceIds": ["call-211", "csb-hotline"],
+    "resourceIds": [
+      "call-211",
+      "csb-hotline"
+    ],
     "storyId": null,
     "celebration": "Mail unlocked! Now the paperwork can find you."
   },
@@ -45,9 +54,16 @@
       "Get an Ohio state ID card at the BMV",
       "Ask your shelter or 211 about help paying any fees"
     ],
-    "requires": ["address"],
+    "requires": [
+      "address"
+    ],
     "skipIf": "hasId",
-    "resourceIds": ["ohio-vital-records", "ssa", "ohio-bmv", "call-211"],
+    "resourceIds": [
+      "ohio-vital-records",
+      "ssa",
+      "ohio-bmv",
+      "call-211"
+    ],
     "storyId": "story-id",
     "celebration": "ID unlocked! That's the hardest step, and you did it."
   },
@@ -62,9 +78,14 @@
       "Apply online or ask a shelter or library to help you apply",
       "Save important numbers in your new phone"
     ],
-    "requires": ["id"],
+    "requires": [
+      "address"
+    ],
     "skipIf": "hasPhone",
-    "resourceIds": ["lifeline", "columbus-library"],
+    "resourceIds": [
+      "lifeline",
+      "columbus-library"
+    ],
     "storyId": null,
     "celebration": "You're connected! People can reach you now."
   },
@@ -79,9 +100,13 @@
       "Apply for Medicaid (health care)",
       "Open the Guide tab for a step-by-step walkthrough"
     ],
-    "requires": ["id"],
+    "requires": [
+      "address"
+    ],
     "skipIf": "hasBenefits",
-    "resourceIds": ["ohio-benefits"],
+    "resourceIds": [
+      "ohio-benefits"
+    ],
     "storyId": null,
     "celebration": "Support claimed! That's money and stress off your shoulders."
   },
@@ -96,9 +121,15 @@
       "Make a simple resume at a library or job center",
       "Apply to 3 entry-level jobs this week"
     ],
-    "requires": ["id", "phone"],
+    "requires": [
+      "id",
+      "phone"
+    ],
     "skipIf": "hasJob",
-    "resourceIds": ["ohiomeansjobs", "columbus-library"],
+    "resourceIds": [
+      "ohiomeansjobs",
+      "columbus-library"
+    ],
     "storyId": "story-job",
     "celebration": "You're job-ready! Every application is a step forward."
   },
@@ -113,9 +144,13 @@
       "Open a free or low-cost bank account",
       "Set up direct deposit for your paycheck"
     ],
-    "requires": ["job-ready"],
+    "requires": [
+      "job-ready"
+    ],
     "skipIf": "hasJob",
-    "resourceIds": ["ohiomeansjobs"],
+    "resourceIds": [
+      "ohiomeansjobs"
+    ],
     "storyId": null,
     "celebration": "You're earning! Look how far you've come."
   },
@@ -130,9 +165,14 @@
       "Ask the Homeless Hotline about housing programs",
       "Get free legal help if you have old evictions or fines"
     ],
-    "requires": ["job"],
+    "requires": [
+      "job"
+    ],
     "skipIf": null,
-    "resourceIds": ["csb-hotline", "legal-aid"],
+    "resourceIds": [
+      "csb-hotline",
+      "legal-aid"
+    ],
     "storyId": "story-housing",
     "celebration": "Welcome home. You did this. ⭐"
   }

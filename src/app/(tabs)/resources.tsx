@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { Body, ResourceCard, Screen, Title } from '@/components/ui';
+import { Body, ResourceCard, SafetyBar, Screen, Title } from '@/components/ui';
 import { Colors, Space } from '@/constants/colors';
 import { resources } from '@/lib/data';
 
@@ -14,7 +14,7 @@ export default function ResourcesScreen() {
   const shown = resources.filter(
     (r) =>
       (category === 'All' || r.category === category) &&
-      (r.name + r.description).toLowerCase().includes(search.toLowerCase()),
+      [r.name, r.description, r.address, r.serves].join(' ').toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -22,12 +22,15 @@ export default function ResourcesScreen() {
       <Title>Resources</Title>
       <Body muted>Free help in Columbus, Ohio.</Body>
 
+      <SafetyBar />
+
       <TextInput
         placeholder="Search..."
         placeholderTextColor={Colors.textMuted}
         value={search}
         onChangeText={setSearch}
         style={styles.search}
+        accessibilityLabel="Search resources"
       />
 
       <View style={styles.chips}>
@@ -35,6 +38,9 @@ export default function ResourcesScreen() {
           <Pressable
             key={c}
             onPress={() => setCategory(c)}
+            accessibilityRole="button"
+            accessibilityState={{ selected: category === c }}
+            accessibilityLabel={`Show ${c === 'All' ? 'all resources' : c}`}
             style={[styles.chip, category === c && styles.chipActive]}>
             <Text style={[styles.chipText, category === c && { color: Colors.background }]}>{c}</Text>
           </Pressable>
@@ -58,7 +64,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: Space.sm },
-  chip: { backgroundColor: Colors.card, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 20 },
+  chip: { backgroundColor: Colors.card, minHeight: 40, justifyContent: 'center', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 20 },
   chipActive: { backgroundColor: Colors.star },
   chipText: { color: Colors.text, fontWeight: '600' },
 });
