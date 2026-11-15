@@ -47,13 +47,12 @@ async function think(history: Turn[], transcript: string, context: string): Prom
 
 export async function POST(request: Request) {
   try {
-    // Cast: the project types FormData with React Native's version, which lacks .get().
-    const form = (await request.formData()) as unknown as { get(name: string): unknown };
-    const audio = form.get('audio');
-    if (!(audio instanceof Blob)) return Response.json({ error: 'No audio' }, { status: 400 });
+    const body = (await request.json()) as { audio?: string; history?: Turn[]; context?: string };
+    if (!body.audio) return Response.json({ error: 'No audio' }, { status: 400 });
 
-    const history = JSON.parse(String(form.get('history') ?? '[]')) as Turn[];
-    const context = String(form.get('context') ?? '');
+    const audio = new Blob([Uint8Array.from(atob(body.audio), (c) => c.charCodeAt(0))]);
+    const history = Array.isArray(body.history) ? body.history : [];
+    const context = body.context ?? '';
 
     const transcript = await transcribe(audio);
     if (!transcript) return Response.json({ transcript: '', reply: '' });

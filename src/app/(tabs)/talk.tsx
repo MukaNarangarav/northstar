@@ -7,6 +7,7 @@ import {
   useAudioRecorder,
   useAudioRecorderState,
 } from 'expo-audio';
+import { File } from 'expo-file-system';
 import { useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
@@ -132,17 +133,22 @@ export default function TalkScreen() {
     if (!uri) return setMode('idle');
 
     try {
-      const form = new FormData();
-      if (Platform.OS === 'web') {
-        form.append('audio', await (await fetch(uri)).blob(), 'speech.webm');
-      } else {
-        // React Native's FormData accepts a { uri, name, type } file object.
-        form.append('audio', { uri, name: 'speech.m4a', type: 'audio/m4a' } as unknown as Blob);
-      }
-      form.append('history', JSON.stringify(history.current));
-      form.append('context', personalContext());
+      // Send the recording as base64 JSON. (Expo's fetch can't upload RN-style { uri } files.)
+      const bytes =
+        Platform.OS === 'web'
+          ? await (await fetch(uri)).arrayBuffer()
+          : await new File(uri).arrayBuffer();
+      const body = JSON.stringify({
+        audio: toBase64(bytes),
+        history: history.current,
+        context: personalContext(),
+      });
 
-      const res = await fetch(apiUrl('/api/talk'), { method: 'POST', body: form });
+      const res = await fetch(apiUrl('/api/talk'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+      });
       const data = (await res.json()) as { transcript?: string; reply?: string; error?: string };
       if (!res.ok || data.error) throw new Error(data.error);
 
@@ -154,7 +160,8 @@ export default function TalkScreen() {
       history.current.push({ role: 'user', content: data.transcript }, { role: 'assistant', content: data.reply });
       setCaption(data.reply);
       await speak(data.reply);
-    } catch {
+    } catch (e) {
+      console.warn('Talk failed:', e);
       setCaption("I couldn't connect. Tap to try again. If it's urgent, call 2 1 1.");
       setMode('idle');
     }
@@ -203,6 +210,15 @@ export default function TalkScreen() {
       </Text>
     </SafeAreaView>
   );
+}
+
+function toBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (let i = 0; i < bytes.length; i += 0x2000) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + 0x2000));
+  }
+  return btoa(binary);
 }
 
 const SIZE = 180;

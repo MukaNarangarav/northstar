@@ -6,7 +6,11 @@ import { Platform } from 'react-native';
 export function apiUrl(path: string): string {
   if (Platform.OS === 'web') return path;
   const host = Constants.expoConfig?.hostUri;
-  if (host) return `http://${host}${path}`;
+  if (host) {
+    // Tunnels (e.g. *.exp.direct) need https; a LAN IP or localhost uses http.
+    const local = /^(localhost|\d+\.\d+\.\d+\.\d+)(:\d+)?$/.test(host);
+    return `${local ? 'http' : 'https'}://${host}${path}`;
+  }
   const origin = (Constants.expoConfig?.extra as { router?: { origin?: string } } | undefined)?.router
     ?.origin;
   return `${(origin ?? '').replace(/\/$/, '')}${path}`;
