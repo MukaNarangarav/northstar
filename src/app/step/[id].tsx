@@ -1,9 +1,11 @@
 import { router, useLocalSearchParams } from 'expo-router';
+import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
-import { Text } from 'react-native';
+import { Linking, StyleSheet, Text, View } from 'react-native';
 
-import { Body, Button, Card, ResourceCard, Screen, Title, styles as ui } from '@/components/ui';
-import { getResource, getStep, getStory } from '@/lib/data';
+import { Body, Button, LargeTitle, Row, Screen, Section } from '@/components/ui';
+import { Colors } from '@/constants/colors';
+import { getResource, getStep } from '@/lib/data';
 import { useProfile } from '@/lib/profile';
 import { isDone } from '@/lib/roadmap';
 
@@ -13,67 +15,69 @@ export default function StepScreen() {
   const [celebrate, setCelebrate] = useState(false);
 
   const step = getStep(id);
-  if (!step || !answers) return <Screen><Body>Step not found.</Body></Screen>;
+  if (!step || !answers)
+    return (
+      <Screen edges={[]}>
+        <Body>Step not found.</Body>
+      </Screen>
+    );
 
   const done = isDone(step, answers, completed);
-  const story = getStory(step.storyId);
+  const places = step.resourceIds.map(getResource).filter((r) => !!r);
 
-  // Celebration screen after marking a step complete.
   if (celebrate) {
     return (
-      <Screen>
-        <Text style={{ fontSize: 72, textAlign: 'center', marginTop: 60 }}>🎉</Text>
-        <Title>{step.celebration}</Title>
-        <Button label="See my next step →" onPress={() => router.replace('/')} />
-      </Screen>
+      <View style={styles.celebrate}>
+        <SymbolView
+          name={{ ios: 'checkmark.circle.fill', android: 'check_circle' }}
+          size={72}
+          tintColor={Colors.done}
+          fallback={null}
+        />
+        <Text style={styles.celebrateText}>{step.celebration}</Text>
+        <View style={{ alignSelf: 'stretch' }}>
+          <Button label="Back to my plan" onPress={() => router.back()} />
+        </View>
+      </View>
     );
   }
 
   return (
-    <Screen>
-      <Title>
-        {step.emoji} {step.title}
-      </Title>
-      <Body muted>{step.plainTitle}</Body>
+    <Screen edges={[]}>
+      <LargeTitle subtitle={step.plainTitle}>{step.title}</LargeTitle>
 
-      <Card>
-        <Text style={ui.small}>WHY THIS MATTERS</Text>
-        <Body>{step.why}</Body>
-      </Card>
+      <Body muted>{step.why}</Body>
 
-      <Card>
-        <Text style={ui.small}>WHAT TO DO</Text>
+      <Section title="What to do">
         {step.tasks.map((t, i) => (
-          <Body key={i}>
-            {i + 1}. {t}
-          </Body>
+          <Row key={i} title={t} value={String(i + 1)} />
         ))}
-      </Card>
+      </Section>
 
-      <Text style={ui.small}>PLACES THAT CAN HELP</Text>
-      {step.resourceIds.map((rid) => {
-        const r = getResource(rid);
-        return r ? <ResourceCard key={rid} resource={r} /> : null;
-      })}
-
-      {story && (
-        <Card>
-          <Text style={ui.small}>{story.isSample ? 'EXAMPLE STORY' : 'SOMEONE WHO MADE IT'}</Text>
-          <Body>"{story.text}"</Body>
-          <Body muted>— {story.name}</Body>
-        </Card>
+      {places.length > 0 && (
+        <Section title="Who can help">
+          {places.map((r) => (
+            <Row
+              key={r!.id}
+              title={r!.name}
+              subtitle={r!.description}
+              value={r!.phone ? 'Call' : r!.url ? 'Website' : undefined}
+              onPress={r!.phone ? () => Linking.openURL(`tel:${r!.phone}`) : r!.url ? () => Linking.openURL(r!.url!) : undefined}
+              chevron={false}
+            />
+          ))}
+        </Section>
       )}
 
       {done ? (
-        <>
-          <Body muted>✅ You've finished this step.</Body>
-          {completed.includes(step.id) && (
-            <Button label="Undo" variant="secondary" onPress={() => undoStep(step.id)} />
-          )}
-        </>
+        completed.includes(step.id) ? (
+          <Button label="Mark as not done" variant="plain" onPress={() => undoStep(step.id)} />
+        ) : (
+          <Body muted>You already have this one.</Body>
+        )
       ) : (
         <Button
-          label="I did it! Mark complete"
+          label="I did this"
           onPress={() => {
             completeStep(step.id);
             setCelebrate(true);
@@ -83,3 +87,15 @@ export default function StepScreen() {
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  celebrate: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 24,
+    padding: 24,
+  },
+  celebrateText: { color: Colors.text, fontSize: 26, fontWeight: '600', textAlign: 'center', letterSpacing: -0.4 },
+});

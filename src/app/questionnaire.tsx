@@ -50,7 +50,7 @@ export default function QuestionnaireScreen() {
       <View style={styles.buttons}>
         <Button label="Yes" onPress={() => answer(true)} />
         <Button label="No" variant="secondary" onPress={() => answer(false)} />
-        {index > 0 && <Button label="← Back" variant="secondary" onPress={() => setIndex(index - 1)} />}
+        {index > 0 && <Button label="Back" variant="plain" onPress={() => setIndex(index - 1)} />}
       </View>
     </View>
   );
@@ -58,8 +58,8 @@ export default function QuestionnaireScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: Colors.background, padding: Space.lg, justifyContent: 'center', gap: Space.md },
-  count: { color: Colors.copperLight, fontWeight: '600', letterSpacing: 1.4, fontSize: 12 },
+  count: { color: Colors.textMuted, fontWeight: '500', fontSize: 15 },
   question: { color: Colors.text, fontSize: 28, fontWeight: '600', letterSpacing: -0.6, lineHeight: 36 },
-  note: { color: Colors.textMuted, fontSize: 15 },
+  note: { color: Colors.textMuted, fontSize: 16 },
   buttons: { gap: Space.sm, marginTop: Space.lg },
 });
