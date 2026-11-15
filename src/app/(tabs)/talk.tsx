@@ -10,10 +10,9 @@ import {
 import { File } from 'expo-file-system';
 import { useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated, {
+import {
   cancelAnimation,
   Easing,
-  useAnimatedStyle,
   useSharedValue,
   withRepeat,
   withSequence,
@@ -21,7 +20,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Colors, Gradients } from '@/constants/colors';
+import { Orb } from '@/components/Orb';
+import { Colors } from '@/constants/colors';
 import { apiUrl } from '@/lib/api';
 import { useProfile } from '@/lib/profile';
 import { buildRoadmap } from '@/lib/roadmap';
@@ -34,10 +34,10 @@ const SILENCE_MS = 1100; // pause this long after talking = they're done
 const NO_SPEECH_MS = 8000; // give up if nobody talks
 
 const STATUS: Record<Mode, string> = {
-  idle: 'Tap to talk',
+  idle: 'Ready when you are',
   listening: 'Listening…',
   thinking: 'Thinking…',
-  speaking: 'Tap to interrupt',
+  speaking: 'Speaking · tap the orb to cut in',
 };
 
 export default function TalkScreen() {
@@ -48,9 +48,11 @@ export default function TalkScreen() {
   const playStatus = useAudioPlayerStatus(player);
 
   const [mode, setMode] = useState<Mode>('idle');
-  const [caption, setCaption] = useState("Hi, I'm NorthStar. Tap the circle and tell me what you need.");
+  const [caption, setCaption] = useState("Hi, I'm NorthStar. Tap Talk and tell me what you need.");
   const history = useRef<Turn[]>([]);
   const timing = useRef({ start: 0, lastLoud: 0, heard: false });
+  // Bumped by Stop: any reply still on its way for an older turn is thrown away.
+  const turnId = useRef(0);
 
   // ---------- bubble animation ----------
   const scale = useSharedValue(1);
@@ -74,12 +76,6 @@ export default function TalkScreen() {
       return () => clearInterval(id);
     }
   }, [mode, scale, glow]);
-
-  const bubbleStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
-  const glowStyle = useAnimatedStyle(() => ({
-    opacity: glow.value,
-    transform: [{ scale: scale.value * 1.1 }],
-  }));
 
   // ---------- listening: follow the voice + detect when they stop ----------
   useEffect(() => {
@@ -127,6 +123,7 @@ export default function TalkScreen() {
   }
 
   async function finishListening() {
+    const myTurn = turnId.current;
     setMode('thinking');
     await recorder.stop();
     const uri = recorder.uri;
@@ -150,6 +147,7 @@ export default function TalkScreen() {
         body,
       });
       const data = (await res.json()) as { transcript?: string; reply?: string; error?: string };
+      if (myTurn !== turnId.current) return; // user pressed Stop while we were thinking
       if (!res.ok || data.error) throw new Error(data.error);
 
       if (!data.transcript || !data.reply) {
@@ -161,6 +159,7 @@ export default function TalkScreen() {
       setCaption(data.reply);
       await speak(data.reply);
     } catch (e) {
+      if (myTurn !== turnId.current) return;
       console.warn('Talk failed:', e);
       setCaption("I couldn't connect. Tap to try again. If it's urgent, call 2 1 1.");
       setMode('idle');
@@ -185,6 +184,17 @@ export default function TalkScreen() {
     }.`;
   }
 
+  // Stop everything: recording, thinking and speaking. Ends the hands-free loop.
+  async function stop() {
+    turnId.current += 1;
+    player.pause();
+    setMode('idle');
+    setCaption("Stopped. Tap Talk whenever you're ready.");
+    try {
+      if (recorder.isRecording) await recorder.stop();
+    } catch {}
+  }
+
   function onTap() {
     if (mode === 'idle') startListening();
     else if (mode === 'listening') {
@@ -193,28 +203,42 @@ export default function TalkScreen() {
     } else if (mode === 'speaking') startListening(); // interrupt
   }
 
+  const active = mode !== 'idle';
+
   return (
     <SafeAreaView style={styles.screen}>
       <Text style={styles.eyebrow}>NORTHSTAR VOICE</Text>
+
       <View style={styles.center}>
-        <Pressable onPress={onTap} hitSlop={40} accessibilityRole="button" accessibilityLabel={STATUS[mode]}>
-          <View style={styles.bubbleWrap}>
-            <Animated.View style={[styles.glow, glowStyle]} />
-            <View style={styles.ring} />
-            <Animated.View style={[styles.bubble, bubbleStyle]}>
-              <View style={styles.sheen} />
-            </Animated.View>
-          </View>
+        <Pressable onPress={onTap} accessibilityRole="button" accessibilityLabel={STATUS[mode]}>
+          <Orb size={210} scale={scale} glow={glow} active={active} />
         </Pressable>
       </View>
 
       <View style={styles.pill}>
-        <View style={[styles.pillDot, mode !== 'idle' && styles.pillDotLive]} />
+        <View style={[styles.pillDot, active && styles.pillDotLive]} />
         <Text style={styles.status}>{STATUS[mode]}</Text>
       </View>
       <Text style={styles.caption} numberOfLines={4}>
         {caption}
       </Text>
+
+      {active ? (
+        <Pressable
+          onPress={stop}
+          accessibilityRole="button"
+          style={({ pressed }) => [styles.mainButton, styles.stopButton, pressed && styles.pressed]}>
+          <View style={styles.stopIcon} />
+          <Text style={[styles.mainButtonText, { color: Colors.text }]}>Stop</Text>
+        </Pressable>
+      ) : (
+        <Pressable
+          onPress={startListening}
+          accessibilityRole="button"
+          style={({ pressed }) => [styles.mainButton, pressed && styles.pressed]}>
+          <Text style={styles.mainButtonText}>Talk to NorthStar</Text>
+        </Pressable>
+      )}
     </SafeAreaView>
   );
 }
@@ -228,76 +252,60 @@ function toBase64(buffer: ArrayBuffer): string {
   return btoa(binary);
 }
 
-const SIZE = 200;
-
 const styles = StyleSheet.create({
+  // Warm, softly blurred brown/olive backdrop.
   screen: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: '#2B241F',
     backgroundImage:
-      'radial-gradient(circle at 50% 42%, rgba(178,126,90,0.28) 0%, rgba(107,66,45,0.10) 38%, transparent 70%)',
-    padding: 24,
+      'radial-gradient(circle at 20% 15%, rgba(120, 98, 80, 0.55) 0%, transparent 55%), radial-gradient(circle at 85% 70%, rgba(118, 112, 88, 0.45) 0%, transparent 55%), radial-gradient(circle at 50% 42%, rgba(214, 170, 138, 0.25) 0%, transparent 50%), linear-gradient(180deg, #3A3029 0%, #221C18 100%)',
+    paddingHorizontal: 24,
+    paddingBottom: 24,
     alignItems: 'center',
   },
-  eyebrow: { color: Colors.copperLight, fontSize: 11, fontWeight: '600', letterSpacing: 2, marginTop: 12 },
+  eyebrow: { color: 'rgba(245, 230, 216, 0.7)', fontSize: 11, fontWeight: '600', letterSpacing: 2, marginTop: 12 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  bubbleWrap: { width: SIZE * 1.6, height: SIZE * 1.6, alignItems: 'center', justifyContent: 'center' },
-  // Soft copper light around the orb.
-  glow: {
-    position: 'absolute',
-    width: SIZE,
-    height: SIZE,
-    borderRadius: SIZE / 2,
-    backgroundColor: 'rgba(230, 180, 144, 0.35)',
-    boxShadow: '0 0 80px 30px rgba(217, 166, 125, 0.55)',
-  },
-  ring: {
-    position: 'absolute',
-    width: SIZE * 1.35,
-    height: SIZE * 1.35,
-    borderRadius: (SIZE * 1.35) / 2,
-    borderWidth: 1,
-    borderColor: 'rgba(230, 180, 144, 0.14)',
-  },
-  // The copper sphere itself: a lit-metal radial gradient.
-  bubble: {
-    width: SIZE,
-    height: SIZE,
-    borderRadius: SIZE / 2,
-    backgroundImage: Gradients.orb,
-    boxShadow: 'inset -14px -18px 40px rgba(40, 22, 12, 0.55), 0 20px 50px rgba(0, 0, 0, 0.5)',
-    overflow: 'hidden',
-  },
-  sheen: {
-    position: 'absolute',
-    top: SIZE * 0.1,
-    left: SIZE * 0.18,
-    width: SIZE * 0.42,
-    height: SIZE * 0.26,
-    borderRadius: SIZE,
-    backgroundImage: 'radial-gradient(ellipse at 50% 50%, rgba(255,245,235,0.55) 0%, transparent 70%)',
-  },
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingVertical: 7,
+    paddingHorizontal: 14,
     borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.04)',
-    borderWidth: 1,
-    borderColor: Colors.border,
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
-  pillDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: Colors.textMuted },
-  pillDotLive: { backgroundColor: Colors.copperLight, boxShadow: '0 0 8px rgba(230,180,144,0.9)' },
-  status: { color: Colors.text, fontSize: 15, fontWeight: '600', letterSpacing: 0.2 },
+  pillDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: 'rgba(245,230,216,0.45)' },
+  pillDotLive: { backgroundColor: '#F6CDAF', boxShadow: '0 0 8px rgba(246,205,175,0.9)' },
+  status: { color: 'rgba(245, 238, 230, 0.85)', fontSize: 14, fontWeight: '500' },
   caption: {
-    color: Colors.textMuted,
-    fontSize: 17,
-    lineHeight: 25,
+    color: Colors.text,
+    fontSize: 18,
+    lineHeight: 26,
     textAlign: 'center',
-    marginTop: 18,
-    minHeight: 100,
+    marginTop: 16,
+    marginBottom: 24,
+    minHeight: 104,
     maxWidth: 340,
   },
+  // White rounded button, like the reference.
+  mainButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    minWidth: 240,
+    paddingVertical: 18,
+    paddingHorizontal: 32,
+    borderRadius: 18,
+    backgroundColor: '#FFFFFF',
+    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.25)',
+  },
+  mainButtonText: { color: '#1A1512', fontSize: 18, fontWeight: '500', letterSpacing: -0.2 },
+  stopButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
+  },
+  stopIcon: { width: 12, height: 12, borderRadius: 3, backgroundColor: Colors.danger },
+  pressed: { opacity: 0.8, transform: [{ scale: 0.98 }] },
 });
