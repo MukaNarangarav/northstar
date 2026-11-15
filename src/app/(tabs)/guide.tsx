@@ -17,6 +17,12 @@ export default function GuideScreen() {
         to do.
       </Body>
 
+      <Card>
+        <Text style={ui.cardTitle}>💬 Ask NorthStar</Text>
+        <Body muted>Type a question in your own words and we'll point you to the right step or place.</Body>
+        <Button label="Ask a question →" onPress={() => router.push('/ask')} />
+      </Card>
+
       {benefits.map((b) => (
         <Card key={b.id}>
           <Text style={ui.cardTitle}>
