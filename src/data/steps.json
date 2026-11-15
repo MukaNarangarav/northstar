@@ -134,6 +134,6 @@
     "skipIf": null,
     "resourceIds": ["csb-hotline", "legal-aid"],
     "storyId": "story-housing",
-    "celebration": "Welcome home. You did this. ⭐"
+    "celebration": "Welcome home. You did this."
   }
 ]
