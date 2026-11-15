@@ -1,0 +1,139 @@
+[
+  {
+    "id": "safety",
+    "emoji": "🛏️",
+    "title": "Safe Tonight",
+    "plainTitle": "Find shelter, food and a shower",
+    "why": "It's hard to plan anything when you're hungry, tired or unsafe. Shelters also have staff who can help with the next steps.",
+    "tasks": [
+      "Call the Homeless Hotline at 614-274-7000 (open 24/7) to get a shelter bed",
+      "Find a free meal near you",
+      "Ask the shelter where you can shower and do laundry"
+    ],
+    "requires": [],
+    "skipIf": "hasShelter",
+    "resourceIds": ["csb-hotline", "mid-ohio-food", "call-211"],
+    "storyId": "story-safety",
+    "celebration": "You're safe tonight. That's the foundation for everything else."
+  },
+  {
+    "id": "address",
+    "emoji": "📬",
+    "title": "Get Your Mail",
+    "plainTitle": "Get a mailing address",
+    "why": "Your ID, benefits and job paperwork all come by mail, so you need an address first.",
+    "tasks": [
+      "Ask your shelter if you can receive mail there",
+      "If not, call 211 and ask where you can get a mailing address",
+      "Write the full address down and keep it with you"
+    ],
+    "requires": ["safety"],
+    "skipIf": "hasAddress",
+    "resourceIds": ["call-211", "csb-hotline"],
+    "storyId": null,
+    "celebration": "Mail unlocked! Now the paperwork can find you."
+  },
+  {
+    "id": "id",
+    "emoji": "🪪",
+    "title": "Prove Who You Are",
+    "plainTitle": "Replace your ID documents",
+    "why": "This is the biggest blocker. You need ID to get hired, open a bank account and apply for most help.",
+    "tasks": [
+      "Order your birth certificate",
+      "Replace your Social Security card",
+      "Get an Ohio state ID card at the BMV",
+      "Ask your shelter or 211 about help paying any fees"
+    ],
+    "requires": ["address"],
+    "skipIf": "hasId",
+    "resourceIds": ["ohio-vital-records", "ssa", "ohio-bmv", "call-211"],
+    "storyId": "story-id",
+    "celebration": "ID unlocked! That's the hardest step, and you did it."
+  },
+  {
+    "id": "phone",
+    "emoji": "📱",
+    "title": "Get Connected",
+    "plainTitle": "Get a free phone",
+    "why": "Employers, caseworkers and housing programs need a way to reach you.",
+    "tasks": [
+      "Check if you qualify for a free phone through Lifeline",
+      "Apply online or ask a shelter or library to help you apply",
+      "Save important numbers in your new phone"
+    ],
+    "requires": ["id"],
+    "skipIf": "hasPhone",
+    "resourceIds": ["lifeline", "columbus-library"],
+    "storyId": null,
+    "celebration": "You're connected! People can reach you now."
+  },
+  {
+    "id": "benefits",
+    "emoji": "🧾",
+    "title": "Claim Your Support",
+    "plainTitle": "Apply for food and health benefits",
+    "why": "Help with food and health care means more of your money can go toward housing.",
+    "tasks": [
+      "Apply for SNAP (food help)",
+      "Apply for Medicaid (health care)",
+      "Open the Guide tab for a step-by-step walkthrough"
+    ],
+    "requires": ["id"],
+    "skipIf": "hasBenefits",
+    "resourceIds": ["ohio-benefits"],
+    "storyId": null,
+    "celebration": "Support claimed! That's money and stress off your shoulders."
+  },
+  {
+    "id": "job-ready",
+    "emoji": "👔",
+    "title": "Get Job-Ready",
+    "plainTitle": "Clothes, resume and job search",
+    "why": "With ID, a phone and an address, you're ready to be hired.",
+    "tasks": [
+      "Get free interview clothes",
+      "Make a simple resume at a library or job center",
+      "Apply to 3 entry-level jobs this week"
+    ],
+    "requires": ["id", "phone"],
+    "skipIf": "hasJob",
+    "resourceIds": ["ohiomeansjobs", "columbus-library"],
+    "storyId": "story-job",
+    "celebration": "You're job-ready! Every application is a step forward."
+  },
+  {
+    "id": "job",
+    "emoji": "💼",
+    "title": "Start Earning",
+    "plainTitle": "Get a job and open a bank account",
+    "why": "A bank account keeps your money safe and avoids check-cashing fees.",
+    "tasks": [
+      "Accept a job offer",
+      "Open a free or low-cost bank account",
+      "Set up direct deposit for your paycheck"
+    ],
+    "requires": ["job-ready"],
+    "skipIf": "hasJob",
+    "resourceIds": ["ohiomeansjobs"],
+    "storyId": null,
+    "celebration": "You're earning! Look how far you've come."
+  },
+  {
+    "id": "housing",
+    "emoji": "🏠",
+    "title": "Home Base",
+    "plainTitle": "Save for and find housing",
+    "why": "This is the goal: a stable place to call home.",
+    "tasks": [
+      "Save a little from each paycheck toward a deposit",
+      "Ask the Homeless Hotline about housing programs",
+      "Get free legal help if you have old evictions or fines"
+    ],
+    "requires": ["job"],
+    "skipIf": null,
+    "resourceIds": ["csb-hotline", "legal-aid"],
+    "storyId": "story-housing",
+    "celebration": "Welcome home. You did this. ⭐"
+  }
+]

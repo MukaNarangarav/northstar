@@ -1,0 +1,26 @@
+[
+  {
+    "id": "story-safety",
+    "isSample": true,
+    "name": "D.",
+    "text": "The first night I called the hotline, I didn't think anyone would pick up. They did, and I had a bed by 10pm. That one call changed everything."
+  },
+  {
+    "id": "story-id",
+    "isSample": true,
+    "name": "R.",
+    "text": "I lost my wallet and everything in it. Getting my ID back took about a month, but once I had it, doors started opening."
+  },
+  {
+    "id": "story-job",
+    "isSample": true,
+    "name": "T.",
+    "text": "I made my resume at the library. My third application turned into an interview, and I got the job."
+  },
+  {
+    "id": "story-housing",
+    "isSample": true,
+    "name": "M.",
+    "text": "I saved a little from every paycheck. Eight months later I got my own keys. I still keep them on the same keychain."
+  }
+]

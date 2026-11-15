@@ -1,0 +1,46 @@
+[
+  {
+    "id": "snap",
+    "emoji": "🍎",
+    "name": "SNAP (food help)",
+    "summary": "Money on a card each month to buy groceries.",
+    "mightQualify": "People with low or no income. Many people experiencing homelessness are eligible.",
+    "documents": ["Photo ID (if you have one)", "Social Security number", "Proof of any income (pay stubs)", "A mailing address"],
+    "steps": [
+      "Go to the Ohio Benefits website or your county job and family services office",
+      "Fill out the application. You can say you have no address or income",
+      "Do your interview (usually by phone)",
+      "Watch your mail for your card"
+    ],
+    "url": "https://benefits.ohio.gov"
+  },
+  {
+    "id": "medicaid",
+    "emoji": "🩺",
+    "name": "Medicaid (health care)",
+    "summary": "Free or low-cost doctor visits, medicine and care.",
+    "mightQualify": "Adults with low income. You can apply at the same time as SNAP.",
+    "documents": ["Photo ID (if you have one)", "Social Security number", "Proof of any income"],
+    "steps": [
+      "Apply on the Ohio Benefits website (same place as SNAP)",
+      "Answer questions about your household and income",
+      "Watch your mail for a decision and your card"
+    ],
+    "url": "https://benefits.ohio.gov"
+  },
+  {
+    "id": "state-id",
+    "emoji": "🪪",
+    "name": "Ohio State ID",
+    "summary": "A photo ID card you need for jobs, banks and benefits.",
+    "mightQualify": "Ohio residents. You'll need documents that prove who you are.",
+    "documents": ["Birth certificate", "Social Security card", "Proof of address (a shelter letter may work)"],
+    "steps": [
+      "Gather your documents (see the ID step in your roadmap)",
+      "Visit an Ohio BMV location",
+      "Get your photo taken and pay any fee (ask 211 about fee help)",
+      "Your card arrives by mail"
+    ],
+    "url": "https://www.bmv.ohio.gov"
+  }
+]

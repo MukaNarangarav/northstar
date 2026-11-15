@@ -1,0 +1,90 @@
+[
+  {
+    "id": "csb-hotline",
+    "name": "Community Shelter Board Homeless Hotline",
+    "category": "Shelter",
+    "description": "24/7 hotline that connects you to a shelter bed in Franklin County.",
+    "phone": "614-274-7000",
+    "url": "https://www.csb.org"
+  },
+  {
+    "id": "call-211",
+    "name": "211 Central Ohio",
+    "category": "General help",
+    "description": "Call 211 to find local help with food, shelter, bills and more.",
+    "phone": "211",
+    "url": "https://www.211.org"
+  },
+  {
+    "id": "mid-ohio-food",
+    "name": "Mid-Ohio Food Collective",
+    "category": "Food",
+    "description": "Find free food pantries and meals near you.",
+    "phone": null,
+    "url": "https://www.mofc.org"
+  },
+  {
+    "id": "ohio-vital-records",
+    "name": "Ohio Vital Statistics (birth certificates)",
+    "category": "ID",
+    "description": "Order a copy of your Ohio birth certificate.",
+    "phone": null,
+    "url": "https://odh.ohio.gov"
+  },
+  {
+    "id": "ssa",
+    "name": "Social Security Administration",
+    "category": "ID",
+    "description": "Replace a lost Social Security card for free.",
+    "phone": "1-800-772-1213",
+    "url": "https://www.ssa.gov"
+  },
+  {
+    "id": "ohio-bmv",
+    "name": "Ohio BMV",
+    "category": "ID",
+    "description": "Get an Ohio state ID card.",
+    "phone": null,
+    "url": "https://www.bmv.ohio.gov"
+  },
+  {
+    "id": "lifeline",
+    "name": "Lifeline (free or low-cost phone service)",
+    "category": "Phone",
+    "description": "A federal program that helps people with low income get phone service.",
+    "phone": null,
+    "url": "https://www.lifelinesupport.org"
+  },
+  {
+    "id": "ohio-benefits",
+    "name": "Ohio Benefits",
+    "category": "Benefits",
+    "description": "Apply for SNAP (food), Medicaid (health care) and cash help.",
+    "phone": null,
+    "url": "https://benefits.ohio.gov"
+  },
+  {
+    "id": "columbus-library",
+    "name": "Columbus Metropolitan Library",
+    "category": "Jobs",
+    "description": "Free computers, internet and job-search help.",
+    "phone": null,
+    "url": "https://www.columbuslibrary.org"
+  },
+  {
+    "id": "ohiomeansjobs",
+    "name": "OhioMeansJobs",
+    "category": "Jobs",
+    "description": "Free job listings, resume help and job training.",
+    "phone": null,
+    "url": "https://ohiomeansjobs.ohio.gov"
+  },
+  {
+    "id": "legal-aid",
+    "name": "Legal Aid Society of Columbus",
+    "category": "Legal",
+    "description": "Free legal help with housing, evictions, benefits and more.",
+    "phone": null,
+    "url": "https://www.columbuslegalaid.org"
+  }
+]
