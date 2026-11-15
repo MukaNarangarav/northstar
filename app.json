@@ -38,6 +38,12 @@
         {
           "microphonePermission": "NorthStar uses the microphone so you can talk to it out loud."
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "NorthStar uses your location to point you to nearby shelters, food and other help."
+        }
       ]
     ],
     "experiments": {
