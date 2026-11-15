@@ -19,6 +19,8 @@ export default function HomeScreen() {
 
       <HelpNowButton />
 
+      <Button label="🎙️ Just talk to NorthStar" onPress={() => router.push('/talk')} />
+
       <Card>
         <Text style={ui.small}>YOUR PROGRESS</Text>
         <Text style={ui.cardTitle}>

@@ -22,10 +22,11 @@ export default function TabLayout() {
         tabBarInactiveTintColor: Colors.textMuted,
       }}>
       <Tabs.Screen name="index" options={{ title: 'Home', tabBarIcon: icon('⭐') }} />
+      <Tabs.Screen name="talk" options={{ title: 'Talk', tabBarIcon: icon('🎙️') }} />
       <Tabs.Screen name="roadmap" options={{ title: 'Roadmap', tabBarIcon: icon('🗺️') }} />
       <Tabs.Screen name="resources" options={{ title: 'Resources', tabBarIcon: icon('📍') }} />
       <Tabs.Screen name="stories" options={{ title: 'Stories', tabBarIcon: icon('💬') }} />
-      <Tabs.Screen name="guide"options={{ title: 'Guide', tabBarIcon: icon('🧭') }} />
+      <Tabs.Screen name="guide" options={{ title: 'Guide', tabBarIcon: icon('🧭') }} />
     </Tabs>
   );
 }
