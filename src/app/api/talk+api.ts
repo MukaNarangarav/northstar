@@ -30,9 +30,9 @@ async function think(history: Turn[], transcript: string, context: string): Prom
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
-      max_completion_tokens: 300, // spoken replies are 1-3 sentences
-      temperature: 0.6,
+      model: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
+      reasoning_effort: 'low', // keep thinking short so replies come back fast
+      max_completion_tokens: 1024, // includes reasoning; spoken replies are 1-3 sentences
       messages: [
         { role: 'system', content: context ? `${SYSTEM_PROMPT}\n\n${context}` : SYSTEM_PROMPT },
         ...history.slice(-12),
