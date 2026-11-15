@@ -58,10 +58,16 @@ export default function WelcomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: Colors.background, padding: Space.lg, gap: Space.lg },
+  screen: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    backgroundImage: 'radial-gradient(circle at 50% 35%, rgba(178,126,90,0.30) 0%, transparent 60%)',
+    padding: Space.lg,
+    gap: Space.lg,
+  },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: Space.md },
   emoji: { fontSize: 72 },
-  title: { color: Colors.text, fontSize: 28, fontWeight: '700', textAlign: 'center' },
+  title: { color: Colors.text, fontSize: 30, fontWeight: '600', letterSpacing: -0.8, textAlign: 'center' },
   text: { color: Colors.textMuted, fontSize: 18, lineHeight: 26, textAlign: 'center' },
   dots: { flexDirection: 'row', justifyContent: 'center', gap: Space.sm },
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.locked },

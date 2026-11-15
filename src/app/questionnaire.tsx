@@ -58,8 +58,8 @@ export default function QuestionnaireScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: Colors.background, padding: Space.lg, justifyContent: 'center', gap: Space.md },
-  count: { color: Colors.star, fontWeight: '700' },
-  question: { color: Colors.text, fontSize: 26, fontWeight: '700', lineHeight: 34 },
+  count: { color: Colors.copperLight, fontWeight: '600', letterSpacing: 1.4, fontSize: 12 },
+  question: { color: Colors.text, fontSize: 28, fontWeight: '600', letterSpacing: -0.6, lineHeight: 36 },
   note: { color: Colors.textMuted, fontSize: 15 },
   buttons: { gap: Space.sm, marginTop: Space.lg },
 });

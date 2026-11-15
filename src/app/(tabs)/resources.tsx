@@ -36,7 +36,7 @@ export default function ResourcesScreen() {
             key={c}
             onPress={() => setCategory(c)}
             style={[styles.chip, category === c && styles.chipActive]}>
-            <Text style={[styles.chipText, category === c && { color: Colors.background }]}>{c}</Text>
+            <Text style={[styles.chipText, category === c && { color: Colors.onCopper }]}>{c}</Text>
           </Pressable>
         ))}
       </View>
@@ -53,12 +53,22 @@ const styles = StyleSheet.create({
   search: {
     backgroundColor: Colors.card,
     color: Colors.text,
-    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 999,
+    paddingHorizontal: 18,
     padding: 12,
     fontSize: 16,
   },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: Space.sm },
-  chip: { backgroundColor: Colors.card, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 20 },
-  chipActive: { backgroundColor: Colors.star },
+  chip: {
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingVertical: 7,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+  },
+  chipActive: { backgroundImage: 'linear-gradient(135deg, #E6B490 0%, #B27E5A 100%)', borderColor: 'transparent' },
   chipText: { color: Colors.text, fontWeight: '600' },
 });
