@@ -21,7 +21,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Colors } from '@/constants/colors';
+import { Colors, Gradients } from '@/constants/colors';
 import { apiUrl } from '@/lib/api';
 import { useProfile } from '@/lib/profile';
 import { buildRoadmap } from '@/lib/roadmap';
@@ -78,7 +78,7 @@ export default function TalkScreen() {
   const bubbleStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
   const glowStyle = useAnimatedStyle(() => ({
     opacity: glow.value,
-    transform: [{ scale: scale.value * 1.35 }],
+    transform: [{ scale: scale.value * 1.1 }],
   }));
 
   // ---------- listening: follow the voice + detect when they stop ----------
@@ -195,16 +195,23 @@ export default function TalkScreen() {
 
   return (
     <SafeAreaView style={styles.screen}>
+      <Text style={styles.eyebrow}>NORTHSTAR VOICE</Text>
       <View style={styles.center}>
         <Pressable onPress={onTap} hitSlop={40} accessibilityRole="button" accessibilityLabel={STATUS[mode]}>
           <View style={styles.bubbleWrap}>
             <Animated.View style={[styles.glow, glowStyle]} />
-            <Animated.View style={[styles.bubble, bubbleStyle, mode === 'listening' && styles.bubbleListening]} />
+            <View style={styles.ring} />
+            <Animated.View style={[styles.bubble, bubbleStyle]}>
+              <View style={styles.sheen} />
+            </Animated.View>
           </View>
         </Pressable>
       </View>
 
-      <Text style={styles.status}>{STATUS[mode]}</Text>
+      <View style={styles.pill}>
+        <View style={[styles.pillDot, mode !== 'idle' && styles.pillDotLive]} />
+        <Text style={styles.status}>{STATUS[mode]}</Text>
+      </View>
       <Text style={styles.caption} numberOfLines={4}>
         {caption}
       </Text>
@@ -221,15 +228,76 @@ function toBase64(buffer: ArrayBuffer): string {
   return btoa(binary);
 }
 
-const SIZE = 180;
+const SIZE = 200;
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: Colors.background, padding: 24 },
+  screen: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    backgroundImage:
+      'radial-gradient(circle at 50% 42%, rgba(178,126,90,0.28) 0%, rgba(107,66,45,0.10) 38%, transparent 70%)',
+    padding: 24,
+    alignItems: 'center',
+  },
+  eyebrow: { color: Colors.copperLight, fontSize: 11, fontWeight: '600', letterSpacing: 2, marginTop: 12 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  bubbleWrap: { width: SIZE, height: SIZE, alignItems: 'center', justifyContent: 'center' },
-  glow: { position: 'absolute', width: SIZE, height: SIZE, borderRadius: SIZE / 2, backgroundColor: Colors.star },
-  bubble: { width: SIZE, height: SIZE, borderRadius: SIZE / 2, backgroundColor: Colors.star },
-  bubbleListening: { backgroundColor: '#FFD966' },
-  status: { color: Colors.text, fontSize: 20, fontWeight: '700', textAlign: 'center' },
-  caption: { color: Colors.textMuted, fontSize: 16, lineHeight: 23, textAlign: 'center', marginTop: 8, minHeight: 92 },
+  bubbleWrap: { width: SIZE * 1.6, height: SIZE * 1.6, alignItems: 'center', justifyContent: 'center' },
+  // Soft copper light around the orb.
+  glow: {
+    position: 'absolute',
+    width: SIZE,
+    height: SIZE,
+    borderRadius: SIZE / 2,
+    backgroundColor: 'rgba(230, 180, 144, 0.35)',
+    boxShadow: '0 0 80px 30px rgba(217, 166, 125, 0.55)',
+  },
+  ring: {
+    position: 'absolute',
+    width: SIZE * 1.35,
+    height: SIZE * 1.35,
+    borderRadius: (SIZE * 1.35) / 2,
+    borderWidth: 1,
+    borderColor: 'rgba(230, 180, 144, 0.14)',
+  },
+  // The copper sphere itself: a lit-metal radial gradient.
+  bubble: {
+    width: SIZE,
+    height: SIZE,
+    borderRadius: SIZE / 2,
+    backgroundImage: Gradients.orb,
+    boxShadow: 'inset -14px -18px 40px rgba(40, 22, 12, 0.55), 0 20px 50px rgba(0, 0, 0, 0.5)',
+    overflow: 'hidden',
+  },
+  sheen: {
+    position: 'absolute',
+    top: SIZE * 0.1,
+    left: SIZE * 0.18,
+    width: SIZE * 0.42,
+    height: SIZE * 0.26,
+    borderRadius: SIZE,
+    backgroundImage: 'radial-gradient(ellipse at 50% 50%, rgba(255,245,235,0.55) 0%, transparent 70%)',
+  },
+  pill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  pillDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: Colors.textMuted },
+  pillDotLive: { backgroundColor: Colors.copperLight, boxShadow: '0 0 8px rgba(230,180,144,0.9)' },
+  status: { color: Colors.text, fontSize: 15, fontWeight: '600', letterSpacing: 0.2 },
+  caption: {
+    color: Colors.textMuted,
+    fontSize: 17,
+    lineHeight: 25,
+    textAlign: 'center',
+    marginTop: 18,
+    minHeight: 100,
+    maxWidth: 340,
+  },
 });
