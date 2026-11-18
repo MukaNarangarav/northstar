@@ -141,6 +141,13 @@ scripts/fetch-places.mjs   # Refresh map places from OpenStreetMap
 - [ ] Expand map coverage beyond central Columbus
 - [ ] Spanish and Somali translations by professional translators
 
+## Team
+
+| | Role |
+| --- | --- |
+| **[Muka Narangarav](https://github.com/MukaNarangarav)** | **Product lead.** Came up with NorthStar, defined the product vision and feature set, and directed the design and development of the app from concept to working demo. |
+| **Baradhan Madhu** | **Engineering.** Implemented the app, the voice pipeline and the API routes. |
+
 ## Acknowledgements
 
 Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors, available under the ODbL. Crisis and shelter numbers are from the Community Shelter Board, LSS CHOICES, Huckleberry House and the 988 Suicide & Crisis Lifeline.
